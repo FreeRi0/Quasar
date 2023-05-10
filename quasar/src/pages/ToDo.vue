@@ -1,6 +1,34 @@
 <template>
   <q-page class="bg-pink-3 column">
-    <h3 class="todo-title">To do</h3>
+    <h3 class="text-h2 text-center text-weight-bold text-accent" >To do</h3>
+    <div class="row-q-pa-sm bg-accent">
+      <q-input
+        @keyup.enter="addTask"
+        square
+        placeholder="Введите задачу"
+        v-model="newTask"
+        dense
+      >
+        <template v-slot:before>
+          <q-avatar>
+            <img src="../assets/avatar.jpg" />
+          </q-avatar>
+        </template>
+
+        <template v-slot:append>
+          <q-icon
+            v-if="text !== ''"
+            name="close"
+            @click="text = ''"
+            class="cursor-pointer"
+          />
+        </template>
+
+        <template v-slot:after>
+          <q-btn @click="addTask()" round dense flat icon="send" />
+        </template>
+      </q-input>
+    </div>
     <q-list separator bordered>
       <q-item
         @click="task.done = !task.done"
@@ -31,53 +59,63 @@
         </q-item-section>
       </q-item>
     </q-list>
+    <div v-if="!tasks.length" class="no-task absolute-center">
+      <q-icon name="check" size="150px" color="primary"></q-icon>
+      <div class="text-h4 text-primary text-center">No tasks</div>
+    </div>
   </q-page>
 </template>
 
 <script>
+import { db } from "../firebase";
 export default {
   data() {
     return {
-      tasks: [
-        {
-          id: "1",
-          content: "Прогулка в парке",
-          done: false,
-        },
-        {
-          id: "2",
-          content: "Играть",
-          done: false,
-        },
-        {
-          id: "3",
-          content: "Бегать",
-          done: false,
-        },
-      ],
+      newTask: "",
+      tasks: [],
     };
   },
 
   methods: {
     deleteTask(index) {
-      this.tasks.splice(index, 1);
+      this.$q
+        .dialog({
+          dark: true,
+          title: "Ахтунг!!!!!!",
+          message: "Действительно ли вы хотите удалить задачу?",
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(() => {
+          this.tasks.splice(index);
+          this.$q.notify({
+            message: "Задача успешно удалена! Не тыкай!!!",
+            color: "primary",
+            avatar: "../assets/cat.jpg",
+          });
+        });
+    },
+    addTask() {
+      this.tasks.push({
+        content: this.newTask,
+        done: false,
+      });
+      this.newTask = "";
     },
   },
 };
 </script>
 
 <style lang="scss">
-.todo-title {
-  color: $accent;
-  text-align: center;
-  font-size: 48px;
-  font-weight: bold;
-}
-
 .done {
   .q-item__label {
     text-decoration: line-through;
     color: $accent;
   }
+}
+
+.no-task {
+  opacity: 0.5;
+  margin-top: 70px;
 }
 </style>
