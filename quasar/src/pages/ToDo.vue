@@ -1,6 +1,6 @@
 <template>
   <q-page class="bg-pink-3 column">
-    <h3 class="text-h2 text-center text-weight-bold text-accent" >To do</h3>
+    <h3 class="text-h2 text-center text-weight-bold text-accent">To do</h3>
     <div class="row-q-pa-sm bg-accent">
       <q-input
         @keyup.enter="addTask"
@@ -15,17 +15,8 @@
           </q-avatar>
         </template>
 
-        <template v-slot:append>
-          <q-icon
-            v-if="text !== ''"
-            name="close"
-            @click="text = ''"
-            class="cursor-pointer"
-          />
-        </template>
-
         <template v-slot:after>
-          <q-btn @click="addTask()" round dense flat icon="send" />
+          <q-btn :disable="newTask" @click="addTask()" round dense flat icon="send" />
         </template>
       </q-input>
     </div>
@@ -67,7 +58,6 @@
 </template>
 
 <script>
-import { db } from "../firebase";
 export default {
   data() {
     return {
@@ -87,11 +77,10 @@ export default {
           persistent: true,
         })
         .onOk(() => {
-          this.tasks.splice(index);
+          this.tasks.splice(index, 1);
           this.$q.notify({
             message: "Задача успешно удалена! Не тыкай!!!",
             color: "primary",
-            avatar: "../assets/cat.jpg",
           });
         });
     },
